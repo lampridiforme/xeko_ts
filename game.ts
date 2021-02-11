@@ -94,7 +94,4 @@ class Game {
         });
     }
 
-    private drawCard(player: Player) {
-
-    }
 }
