@@ -1,4 +1,4 @@
-import { Card } from "./card";
+import { Card, Pack, Rarity } from "./card";
 import { Player } from "./player";
 
 export interface CardNeighbors {
@@ -27,13 +27,37 @@ export class PlacedCard {
         this.x = x;
         this.y = y;
     }
+
+    public get Card(): Card {
+        return this.card;
+    }
     
     public get Id(): number {
         return this.id;
     }
 
-    public get Card(): Card {
-        return this.card;
+    public get CardId(): number {
+        return this.card.Id;
+    }
+
+    public get Name(): string {
+        return this.card.Name;
+    }
+
+    public get Pack(): Pack {
+        return this.card.Pack;
+    }
+
+    public get RulesText(): string {
+        return this.card.RulesText;
+    }
+
+    public get FlavorText(): string {
+        return this.card.FlavorText;
+    }
+
+    public get Rarity(): Rarity {
+        return this.card.Rarity;
     }
 
     public get Owner(): Player {

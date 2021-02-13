@@ -1,5 +1,5 @@
 import { Board } from './board';
-import {Card, CardDataStore} from './card';
+import {Card} from './card';
 import { PlacedCard } from './placedcard';
 import {Player} from './player';
 import { TurfWarInstance } from './turfwar';
@@ -9,7 +9,7 @@ class Game {
     private board: Board;
     private players: Array<Player>;
     // lookups for card data are performed here
-    private cardDataStore: CardDataStore;
+    // private cardDataStore: CardDataStore;
 
     // dynamic data
     private currentPlayer: number; // index of player array 

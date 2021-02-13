@@ -88,6 +88,7 @@ class PlayerCards {
 }
 
 export class Player {
+    // todo: each player also needs a unique id, unless names are guaranteed to be unique
     // maybe pull this out into a PlayerData?
     private name: string;
     private age: number; // needed for zodiac card and play order

@@ -1,6 +1,50 @@
-import { Card } from "./card";
+import { Card, CardBorders, Pack, Rarity, SpeciesCard, SpeciesType, TrophicLevel } from "./card";
 import { CardNeighbors, PlacedCard } from "./placedcard";
 import { Player } from "./player";
+
+// easily access cards stored in Board via this object
+class CardStore {
+    private idToCards: Map<number, PlacedCard>;
+    private coordToId: Map<[number, number], number>;
+    private ownerToIds: Map<Player, Array<number>>;
+
+    constructor() {
+        this.idToCards = new Map();
+        this.coordToId = new Map();
+        this.ownerToIds = new Map();
+    }
+
+    public setCard() {
+
+    }
+
+    /**
+     * todo: consider allowing predicates instead of just strict matches
+     * @param criteria Properties that must all match for the search to return true. Subcriteria are: cardName, ownerName, trophicLevel, speciesType, borders, cardId, cardPack, and rarity.
+     */
+    public findSubset({cardName, ownerName, trophicLevel, speciesType, borders, cardId, cardPack, rarity}: {
+        cardName?: string,
+        ownerName?: string, // todo: change this to ownerID?
+        trophicLevel?: TrophicLevel,
+        speciesType?: SpeciesType, // too specific
+        borders?: CardBorders, // too specific
+        cardId?: number, 
+        cardPack?: Pack,
+        rarity?: Rarity,
+    }): Array<PlacedCard> {
+        let cardArray = Array.from(this.idToCards.values());
+        let predicate = (placedCard: PlacedCard): boolean => {
+            let res = false;
+            res =   (!!cardName ? placedCard.Name === cardName : true) &&
+                    (!!ownerName ? placedCard.Owner.Name === ownerName : true) &&
+                    (!!cardId ? placedCard.CardId === cardId : true) &&
+                    (!!cardPack ? placedCard.Pack === cardPack : true) &&
+                    (!!rarity ? placedCard.Rarity === rarity : true);
+            return res;
+        }
+        return cardArray.filter(predicate);
+    }
+}
 
 export class Board {
     // keeps track of the next id to use for a placed card
