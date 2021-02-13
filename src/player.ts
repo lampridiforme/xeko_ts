@@ -6,6 +6,18 @@ class PlayerCards {
     private hand: Array<number>;
     private shed: Array<number>;
 
+    constructor(deck: Array<number>) {
+        this.deck = deck;
+    }
+
+    public get Hand(): Array<number> {
+        return this.hand;        
+    }
+
+    public get Shed(): Array<number> {
+        return this.shed;
+    }
+
     /**
      * Draws a number of cards from the deck and places it into the destination
      * @param numCards Number of cards to draw from deck
@@ -85,6 +97,12 @@ export class Player {
     // an array of function/card lookup ids for sunrise effects
     private sunriseEffects: Set<number>;
     private sunsetEffects: Set<number>;
+
+    constructor(name: string, age: number, deck: Array<number>) {
+        this.name = name;
+        this.age = age;
+        this.cards = new PlayerCards(deck);
+    }
 
     public get Name(): string {
         return this.name;

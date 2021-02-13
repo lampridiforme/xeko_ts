@@ -30,6 +30,17 @@ enum Token {
     quinary
 }
 
+enum SpeciesType {
+    plant,
+    mammal,
+    reptile,
+    bird,
+    amphibian,
+    invertebrate,
+    insect,
+    fish
+}
+
 // experimenting with keeping function data separate from actual Card instance and using a map or ctor function to generate it
 // or using the same map and storing a tuple of both values
 // might just make this a factory
@@ -82,6 +93,7 @@ export class SpeciesCard extends Card {
     private tokens: Array<Token>;
     private energy: number;
     private points: number;
+    private speciesType: SpeciesType;
 }
 
 export class BoostCard extends Card {
