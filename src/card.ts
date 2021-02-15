@@ -57,11 +57,44 @@ export enum SpeciesType {
 //    Rarity: Rarity;
 // }
 
-export interface CardBorders {
-    top: Border,
-    bottom: Border,
-    east: Border,
-    west: Border
+export class CardBorders {
+    private top: Set<Border>;
+    private bottom: Set<Border>;
+    private left: Set<Border>;
+    private right: Set<Border>;
+
+    constructor(top: Set<Border>, bottom: Set<Border>, left: Set<Border>, right: Set<Border>) {
+        this.top = top;
+        this.bottom = bottom;
+        this.left = left;
+        this.right = right;
+    }
+
+    public get Top(): Set<Border> {
+        return this.top;
+    }
+
+    public get Bottom(): Set<Border> {
+        return this.bottom;
+    }
+
+    public get Left(): Set<Border> {
+        return this.left;
+    }
+
+    public get Right(): Set<Border> {
+        return this.right;
+    }
+
+    public equals(other: CardBorders): boolean {
+        if (this.Top === other.Top &&
+            this.Bottom === other.Bottom &&
+            this.Left === other.Left &&
+            this.Right === other.Right) {
+            return true;
+        }
+        return false;
+    }
 }
 
 // Contains reference to static data, but treat everything else as dynamic
@@ -110,6 +143,15 @@ export abstract class Card {
 
     public get Rarity(): Rarity {
         return this.rarity;
+    }
+
+    public equals(other: Card): boolean {
+        return this.id === other.Id &&
+            this.name === other.Name &&
+            this.pack === other.Pack &&
+            this.rulesText === other.RulesText &&
+            this.flavorText === other.FlavorText &&
+            this.rarity === other.Rarity;
     }
 }
 
