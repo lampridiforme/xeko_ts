@@ -45,6 +45,10 @@ class Game implements GameState {
         return !!this.TurfWar;
     }
 
+    // public drawCard(player: Player): [boolean, Game] {
+
+    // }
+
     /**
      * Place a species card on the board. 
      * @param card Species card to place
@@ -69,7 +73,7 @@ class Game implements GameState {
     public placeBoostCard(card: BoostCard, x: number, y: number, player: Player): [boolean, Game] {
         if (this.IsTurfWarActive) {
             let placedCard = this.placeCard(card, x, y, player);
-            this.TurfWar.addBoost(player, card.Boost);
+            this.TurfWar.addBoost(placedCard, player);
         }
         return [false, this];
     }
