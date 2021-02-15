@@ -1,4 +1,5 @@
-import { Card, CardBorders, Pack, PlaceableCard, Rarity } from "./card";
+import { Pack, Rarity } from './enums';
+import { CardBorders, PlaceableCard } from "./card";
 import { Player } from "./player";
 
 export interface CardNeighbors {

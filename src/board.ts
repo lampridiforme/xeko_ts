@@ -1,4 +1,5 @@
-import { Border, Card, CardBorders, HotSpotCard, Pack, PlaceableCard, Rarity, SpeciesCard, SpeciesType, TrophicLevel } from "./card";
+import { Rarity, TrophicLevel, SpeciesType, Pack, Border } from './enums';
+import { Card, CardBorders, HotSpotCard, PlaceableCard, SpeciesCard } from "./card";
 import { CardNeighbors, PlacedCard } from "./placedcard";
 import { Player } from "./player";
 

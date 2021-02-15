@@ -1,43 +1,4 @@
-export enum Pack {
-    madagascar,
-    costarica,
-    indonesia,
-    china
-}
-
-export enum Rarity {
-    common,
-    uncommon,
-    endangered,
-    rare
-}
-
-export enum Border {
-    blue,
-    yellow,
-    orange,
-    red,
-    purple
-}
-
-export enum TrophicLevel {
-    primary,
-    secondary,
-    tertiary,
-    quaternary,
-    quinary
-}
-
-export enum SpeciesType {
-    plant,
-    mammal,
-    reptile,
-    bird,
-    amphibian,
-    invertebrate,
-    insect,
-    fish
-}
+import { Border, Pack, Rarity, TrophicLevel, SpeciesType } from './enums';
 
 // experimenting with keeping function data separate from actual Card instance and using a map or ctor function to generate it
 // or using the same map and storing a tuple of both values
