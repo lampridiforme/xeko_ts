@@ -155,6 +155,21 @@ export abstract class Card {
     }
 }
 
+export abstract class PlaceableCard extends Card {
+    // want to keep this extensible for non-quad cards (eg hex), but don't worry too much yet
+    private borders: CardBorders;
+    constructor(id: number, name: string, pack: Pack, rulesText: string, flavorText: string, rarity: Rarity, borders: CardBorders) {
+        super(id, name, pack, rulesText, flavorText, rarity);
+        this.borders = borders;
+    }
+
+    // this is the part I'm not sure about - will have to pull out and make a quad card class if diff card shapes are used...
+    // agh classes!
+    public get Borders(): CardBorders {
+        return this.borders;
+    }
+}
+
 export class XekoCard extends Card {
     // this is an array because playing a card will need to check if all tokens are present among
     // the user's played cards - just perform a set lookup
@@ -165,16 +180,14 @@ export class XekoCard extends Card {
     }
 }
 
-export class SpeciesCard extends Card {
+export class SpeciesCard extends PlaceableCard {
     private tokens: Set<TrophicLevel>;
     private energy: number;
     private points: number;
     private speciesType: SpeciesType;
-    // want to keep this extensible for non-quad cards (eg hex), but don't worry too much yet
-    private borders: CardBorders;
 
-    constructor(id: number, name: string, pack: Pack, rulesText: string, flavorText: string, rarity: Rarity, tokens: Set<TrophicLevel>, energy: number, points: number, speciesType: SpeciesType) {
-        super(id, name, pack, rulesText, flavorText, rarity);
+    constructor(id: number, name: string, pack: Pack, rulesText: string, flavorText: string, rarity: Rarity, borders: CardBorders, tokens: Set<TrophicLevel>, energy: number, points: number, speciesType: SpeciesType) {
+        super(id, name, pack, rulesText, flavorText, rarity, borders);
         this.tokens = tokens;
         this.energy = energy;
         this.points = points;
@@ -196,33 +209,16 @@ export class SpeciesCard extends Card {
     public get SpeciesType(): SpeciesType {
         return this.speciesType;
     }
-
-    // this is the part I'm not sure about - will have to pull out and make a quad card class if diff card shapes are used...
-    // agh classes!
-    public get Borders(): CardBorders {
-        return this.borders;
-    }
 }
 
-export class BoostCard extends Card {
+export class BoostCard extends PlaceableCard {
     // for now, use flat boost values. In the future, change this to a predicate to accomodate for
     // unusual boost values, like in Flock
     private boost: number;
-    private borders: CardBorders;
 
     public get Boost(): number {
         return this.boost;
     }
-
-    public get Borders(): CardBorders {
-        return this.borders;
-    }
 }
 
-export class HotSpotCard extends Card {
-    private borders: CardBorders;
-
-    public get Borders(): CardBorders {
-        return this.borders;
-    }
-}
+export class HotSpotCard extends PlaceableCard {}

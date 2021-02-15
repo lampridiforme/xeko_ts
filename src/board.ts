@@ -1,9 +1,9 @@
-import { Card, CardBorders, Pack, Rarity, SpeciesCard, SpeciesType, TrophicLevel } from "./card";
+import { Border, Card, CardBorders, HotSpotCard, Pack, PlaceableCard, Rarity, SpeciesCard, SpeciesType, TrophicLevel } from "./card";
 import { CardNeighbors, PlacedCard } from "./placedcard";
 import { Player } from "./player";
 
 // easily access cards stored in Board via this object
-class CardStore {
+class PlacedCardStore {
     private idToCards: Map<number, PlacedCard>;
     // todo: is there an easy way to do this that doesn't involve keeping coordinate info in both PlacedCard and CardStore?
     private coordToId: Map<[number, number], number>;
@@ -14,12 +14,12 @@ class CardStore {
     }
 
     public getCardById(id: number): PlacedCard {
-        return this.idToCards.get(id);
+        return this.idToCards.get(id) || null;
     }
 
     public getCardByCoord(x: number, y: number): PlacedCard {
         let id = this.coordToId.get([x, y]);
-        return this.idToCards.get(id);
+        return this.idToCards.get(id) || null;
     }
 
     public addCard(card: PlacedCard) {
@@ -94,9 +94,9 @@ export class Board {
     // and moving 2d array to render logic. Only issue is orphan cards, may need to make a lookup function with fake pointers
 
     // UPDATE: will make this a more robust data structure, but its unecessary to create a 2d array here. Just store coordinate info and make it easy to do lookups on exisitng cards
-    private cardStore: CardStore;
+    private cardStore: PlacedCardStore;
 
-    constructor(origin: Card) {
+    constructor(origin: HotSpotCard) {
         // https://stackoverflow.com/questions/16512182/how-to-create-empty-2d-array-in-javascript
         // this.grid = [...Array(w)].map(column => Array(h));
         // this.grid = new Map([[[0, 0], new PlacedCard(this.Id, origin, 0, 0)]]);
@@ -104,7 +104,7 @@ export class Board {
         // this.grid = [new PlacedCard(this.Id, origin, 0, 0)];
 
         let originCard = new PlacedCard(this.Id, origin, 0, 0);
-        this.cardStore = new CardStore();
+        this.cardStore = new PlacedCardStore();
         this.cardStore.addCard(originCard);
         
     }
@@ -124,20 +124,48 @@ export class Board {
      * @param owner Player who owns the card
      * @returns Boolean representing if the card was successfully added (if borders match)
      */
-    public placeCard(card: Card, x: number, y: number, owner: Player): boolean {
+    public placeCard(card: PlaceableCard, x: number, y: number, owner: Player): PlacedCard {
         let neighbors = this.getNeighboringCards(x, y);
         let placedCard = new PlacedCard(this.Id, card, x, y, owner, neighbors);
         if (this.validatePlacement(card, neighbors)) {
             this.cardStore.addCard(placedCard);
-            return true;
+            return placedCard;
         } 
+        return null;
+    }
+
+    public getCardById(id: number): PlacedCard {
+        return !!id ? this.cardStore.getCardById(id) : null;
+    }
+
+    private validatePlacement(card: PlaceableCard, {top, bottom, left, right}: CardNeighbors): boolean {
+        // just create a new set so validateBorder doesn't try to compare a set to null, not sure if this'll cause 
+        // issues in the future irt comparing empty bordered cards vs no cards/neighbors at all
+        let topNeighbor = this.cardStore.getCardById(top);
+        let bottomNeighbor = this.cardStore.getCardById(bottom);
+        let leftNeighbor = this.cardStore.getCardById(left);
+        let rightNeighbor = this.cardStore.getCardById(right);
+
+        return this.validateBorder(card.Borders.Top, topNeighbor.Borders.Bottom) &&
+            this.validateBorder(card.Borders.Bottom, bottomNeighbor.Borders.Top) &&
+            this.validateBorder(card.Borders.Left, leftNeighbor.Borders.Right) &&
+            this.validateBorder(card.Borders.Right, rightNeighbor.Borders.Left);
+    }
+
+    private validateBorder(cardBorder: Set<Border>, neighborBorder: Set<Border>) {
+        // check borderless cases first
+        if ((cardBorder.size === 0 && neighborBorder.size > 0) || (cardBorder.size > 0 && neighborBorder.size === 0)) {
+            return false;
+        }
+
+        for (let borderColor in cardBorder) {
+            if (neighborBorder.has(Border[borderColor])) {
+                return true;
+            }
+        }
         return false;
     }
 
-    private validatePlacement(card: Card, neighbors: CardNeighbors): boolean {
-        // todo: do validation here based on border colors
-        return true;
-    }
 
     private getNeighboringCards(x: number, y: number): CardNeighbors {
         // let top = this.Grid.find((placedCard) => placedCard.X === x && placedCard.Y === y + 1).Id;

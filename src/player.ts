@@ -105,12 +105,21 @@ export class Player {
         this.cards = new PlayerCards(deck);
     }
 
+    // for now, just use name as id
+    public get Id(): string {
+        return this.Name;
+    }
+
     public get Name(): string {
         return this.name;
     }
 
     public get Age(): number {
         return this.age;
+    }
+
+    public equals(other: Player) {
+        return this.Name === other.Name;
     }
 
     /**

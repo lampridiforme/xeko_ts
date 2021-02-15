@@ -1,4 +1,4 @@
-import { Card, Pack, Rarity } from "./card";
+import { Card, CardBorders, Pack, PlaceableCard, Rarity } from "./card";
 import { Player } from "./player";
 
 export interface CardNeighbors {
@@ -11,7 +11,7 @@ export interface CardNeighbors {
 export class PlacedCard {
     // each card has a unique id assigned on placement, for now let this be the order of placement
     private id: number;
-    private card: Card;
+    private card: PlaceableCard;
     private owner: Player;
     // todo: should neighbors be stored as reference ids or as actual objects? Ids may be safer
     private neighbors: CardNeighbors;
@@ -20,7 +20,7 @@ export class PlacedCard {
     private x: number;
     private y: number;
 
-    constructor(id: number, card: Card, x: number, y: number, owner?: Player, neighbors?: CardNeighbors) {
+    constructor(id: number, card: PlaceableCard, x: number, y: number, owner?: Player, neighbors?: CardNeighbors) {
         this.card = card;
         this.owner = !!owner ? owner : null;
         this.neighbors = !!neighbors ? neighbors : {top: null, bottom: null, left: null, right: null};
@@ -28,7 +28,7 @@ export class PlacedCard {
         this.y = y;
     }
 
-    public get Card(): Card {
+    public get Card(): PlaceableCard {
         return this.card;
     }
     
@@ -37,27 +37,27 @@ export class PlacedCard {
     }
 
     public get CardId(): number {
-        return this.card.Id;
+        return this.Card.Id;
     }
 
     public get Name(): string {
-        return this.card.Name;
+        return this.Card.Name;
     }
 
     public get Pack(): Pack {
-        return this.card.Pack;
+        return this.Card.Pack;
     }
 
     public get RulesText(): string {
-        return this.card.RulesText;
+        return this.Card.RulesText;
     }
 
     public get FlavorText(): string {
-        return this.card.FlavorText;
+        return this.Card.FlavorText;
     }
 
     public get Rarity(): Rarity {
-        return this.card.Rarity;
+        return this.Card.Rarity;
     }
 
     public get Owner(): Player {
@@ -66,6 +66,10 @@ export class PlacedCard {
 
     public get Neighbors(): CardNeighbors {
         return this.neighbors;
+    }
+
+    public get Borders(): CardBorders {
+        return this.Card.Borders;
     }
 
     public get X(): number {
