@@ -5,14 +5,14 @@ import { getRandomNumber } from "./utils";
 export class PlayerCards {
     // simply store an array of ids for card data lookup
     private deck: Array<number>;
-    private hand: Array<number>;
+    private hand: Set<number>;
     private shed: Array<number>;
 
     constructor(deck: Array<number>) {
         this.deck = deck;
     }
 
-    public get Hand(): Array<number> {
+    public get Hand(): Set<number> {
         return this.hand;        
     }
 
@@ -30,16 +30,41 @@ export class PlayerCards {
         let drawn = [];
         for (let drawCount = 0; drawCount < numCards; drawCount++) {
             let drawnCard = this.deck.pop();
+
+            // ran out of cards to draw
+            if (!drawnCard) {
+                break;
+            }
+
             drawn.push(drawnCard);
         }
 
         if (destinationIsHand) {
-            this.hand = this.hand.concat(drawn);
+            for (let drawnCard of drawn) {
+                this.hand = this.hand.add(drawnCard);
+            }
         } else {
             this.shed = this.shed.concat(drawn);
         }
 
         return drawn;
+    }
+
+    /**
+     * Removes a card from the hand
+     * @param cardId Id of the card to move
+     * @returns The id of the card that was played
+     */
+    public play(cardId: number, destinationIsShed: boolean = false): number {
+        if (!this.Hand.has(cardId)) {
+            console.warn('tried to remove card that doesnt exist from hand: ', cardId);
+            return null;
+        }
+        this.Hand.delete(cardId);
+        if (destinationIsShed) {
+            this.Shed.push(cardId);
+        } 
+        return cardId;
     }
 
     /**
@@ -52,7 +77,7 @@ export class PlayerCards {
         // todo: check if this causes problems when id === 0
         if (!!foundCard) {
             if (destinationIsHand) {
-                this.hand.push(foundCard);
+                this.hand.add(foundCard);
             } else {
                 this.shed.push(foundCard);
             }

@@ -31,8 +31,37 @@ export class Player {
         return this.age;
     }
 
-    public equals(other: Player) {
-        return this.Name === other.Name;
+    private get Cards(): PlayerCards {
+        return this.cards;
+    }
+
+    /**
+     * Move cards from deck to hand
+     * @param numCards Number of cards to draw
+     * @returns Boolean representing if that many cards were drawn successfully, and the array of card ids
+     */
+    public draw(numCards: number): [boolean, Array<number>] {
+        let drawnCards = this.Cards.draw(numCards);
+        return [(drawnCards.length === numCards), drawnCards];
+    }
+
+    /**
+     * Move cards from deck to shed
+     * @param numCards Number of cards to discard
+     * @returns Boolean representing if that many cards were shed successfully, and the array of card ids
+     */
+    public shed(numCards: number): [boolean, Array<number>] {
+        let discardedCards = this.Cards.draw(numCards, false);
+        return [(discardedCards.length === numCards), discardedCards];
+    }
+
+    /**
+     * Check player equality
+     * Since names and ages can be the same, just compare ids 
+     * @param other Another Player
+     */
+    public equals(other: Player): boolean {
+        return this.Id === other.Id;
     }
 
     /**

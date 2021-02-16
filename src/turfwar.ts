@@ -21,18 +21,25 @@ export class TurfWar {
 
     private isInvaderTurn: boolean;
 
-    constructor(invadingCard: PlacedCard, invadingPlayer: Player) {
+    /**
+     * 
+     * @param invadingCard 
+     * @param defendingCard The defending species - since the invader determines the defending card, this can be provided at the constructor level
+     * @param invadingPlayer 
+     * @param defendingPlayer
+     */
+    constructor(invadingCard: PlacedCard, defendingCard: PlacedCard, invadingPlayer: Player, defendingPlayer: Player) {
         this.invadingCard = invadingCard;
-        // rely on adding the defending player later, in case of situations where there are multiple players
+        this.defendingCard = defendingCard;
+        
         this.invader = invadingPlayer;
+        this.defender = defendingPlayer;
 
-        // this.invadingBoost = 0;
-        // this.defendingBoost = 0;
         this.invadingBoosts = [];
         this.defendingBoosts = [];
 
-        // after invader places a card, it's the defender's turn
-        this.isInvaderTurn = false;
+        // invader begins by placing boosts, if they want
+        this.isInvaderTurn = true;
     }
 
     public get CurrentPlayer(): Player {
@@ -43,14 +50,35 @@ export class TurfWar {
         }
     }
 
-    public get InvaderBoost(): number {
-        // monkaS casting as BoostCard
-        return this.invadingBoosts.reduce((accu: number, card: PlacedCard) => accu + (card.Card as BoostCard).Boost, 0);
+    // afaik only the invader gets the bonus
+    // rule book also contradicts itself on how much of a boost is applied per link, or if all
+    // colors need to match
+    private get InvaderLinkBonus(): number {
+        let {top, bottom, left, right} = this.invadingCard.Neighbors;
+        let neighborCount = [top, bottom, left, right].reduce((accu: number, neighbor: number) =>
+            neighbor !== null ? accu + 1 : accu,
+        0);
+
+        switch(neighborCount) {
+            case 2:
+                return 5;
+            case 3:
+                return 10;
+            case 4:
+                return 15;
+            default:
+                return 0;
+        }
     }
-    
-    public get DefenderBoost(): number {
+
+    /**
+     * Calculate the total amount of boosts from a set of boost cards
+     * @param boosts Array of boosts
+     */
+    private getBoostTotal(boosts: Array<PlacedCard>): number {
+        // todo: account for special events
         // monkaS casting as BoostCard
-        return this.defendingBoosts.reduce((accu: number, card: PlacedCard) => accu + (card.Card as BoostCard).Boost, 0);
+        return boosts.reduce((accu: number, card: PlacedCard) => accu + (card.Card as BoostCard).Boost, 0);
     }
 
     // todo: add extra effects from rulestext
