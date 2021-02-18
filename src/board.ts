@@ -57,9 +57,9 @@ class PlacedCardStore {
      * todo: consider allowing predicates instead of just strict matches
      * @param criteria Properties that must all match for the search to return true. Subcriteria are: cardName, ownerName, trophicLevel, speciesType, borders, cardId, cardPack, and rarity.
      */
-    public findSubset({cardName, ownerName, tokens, speciesType, borders, cardId, cardPack, rarity}: {
+    public findSubset({cardName, owner, tokens, speciesType, borders, cardId, cardPack, rarity}: {
         cardName?: string,
-        ownerName?: string, // todo: change this to ownerID?
+        owner?: Player, // todo: change this to ownerID?
         tokens?: Set<TrophicLevel>,
         speciesType?: SpeciesType,
         borders?: CardBorders,
@@ -71,7 +71,7 @@ class PlacedCardStore {
         let predicate = (placedCard: PlacedCard): boolean => {
             let genericChecks =   
                 (!!cardName ? placedCard.Name === cardName : true) &&
-                (!!ownerName ? placedCard.Owner.Name === ownerName : true) &&
+                (!!owner ? placedCard.Owner.equals(owner) : true) &&
                 (!!cardId ? placedCard.CardId === cardId : true) &&
                 (!!cardPack ? placedCard.Pack === cardPack : true) &&
                 (!!rarity ? placedCard.Rarity === rarity : true);
@@ -137,6 +137,10 @@ export class Board {
 
     public getCardById(id: number): PlacedCard {
         return !!id ? this.cardStore.getCardById(id) : null;
+    }
+
+    public getCardsByPlayer(player: Player): Array<PlacedCard> {
+        return this.cardStore.findSubset({owner: player}); 
     }
 
     private validatePlacement(card: PlaceableCard, {top, bottom, left, right}: CardNeighbors): boolean {

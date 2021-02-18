@@ -31,6 +31,10 @@ export class Player {
         return this.age;
     }
 
+    public get DeckSize(): number {
+        return this.Cards.DeckSize;
+    }
+
     private get Cards(): PlayerCards {
         return this.cards;
     }

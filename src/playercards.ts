@@ -20,6 +20,10 @@ export class PlayerCards {
         return this.shed;
     }
 
+    public get DeckSize(): number {
+        return this.deck.length;
+    }
+
     /**
      * Draws a number of cards from the deck and places it into the destination
      * @param numCards Number of cards to draw from deck

@@ -24,7 +24,7 @@ interface GameState {
 }
 
 // top level logic engine
-class Game implements GameState {
+class Game {
     private board: Board;
     private players: Array<Player>;
     // lookups for card data are performed here
@@ -53,59 +53,102 @@ class Game implements GameState {
         this.board = new Board(hotspotCard);
     }
 
-    public get Board(): Board {
+    private get Board(): Board {
         return this.board;
     }
 
-    public get Players(): Array<Player> {
+    private get Players(): Array<Player> {
         return this.players;
     }
 
     // allows view to ask whos turn it is
-    public get CurrentPlayer(): Player {
+    private get CurrentPlayer(): Player {
         return this.players[this.currentPlayer];
     }
 
-    public get DrewCard(): boolean {
+    private get CurrentPlayerIndex(): number {
+        return this.currentPlayer;
+    }
+
+    private set CurrentPlayerIndex(nextIndex: number) {
+        this.currentPlayer = nextIndex;
+    }
+
+    private get DrewCard(): boolean {
         return this.drewCard;
     }
 
-    public get SunriseFinished(): boolean {
+    private set DrewCard(state: boolean) {
+        this.drewCard = state;
+    }
+
+    private get SunriseFinished(): boolean {
         return this.sunriseFinished;
     }
 
-    public get PlayedSpecies(): boolean {
+    private set SunriseFinished(state: boolean) {
+        this.sunriseFinished = state;
+    }
+
+    private get PlayedSpecies(): boolean {
         return this.playedSpecies;
     }
 
-    public get PlayedXeko(): boolean {
+    private set PlayedSpecies(state: boolean) {
+        this.playedSpecies = state;
+    }
+
+    private get PlayedXeko(): boolean {
         return this.playedXeko;
     }
 
-    public get TurfWarInitiated(): boolean {
+    private set PlayedXeko(state: boolean) {
+        this.playedXeko = state;
+    }
+
+    private get TurfWarInitiated(): boolean {
         return this.turfWarInitiated;
     }
 
-    public get SunsetCompleted(): boolean {
+    private set TurfWarInitated(state: boolean) {
+        this.turfWarInitiated = state;
+    }
+
+    private get SunsetCompleted(): boolean {
         return this.sunsetCompleted;
+    }
+
+    private set SunsetCompleted(state: boolean) {
+        this.sunsetCompleted = state;
     }
 
     private get TurfWar(): TurfWar {
         return this.TurfWar;
     }
 
+    private set TurfWar(turfWar: TurfWar) {
+        this.turfWar = turfWar;
+    }
+
     private get IsTurfWarActive(): boolean {
         return !!this.TurfWar;
     }
 
-    // if the current player's turn is over - this includes the sunset phase
-    private get IsTurnOver(): boolean {
-        return this.drewCard && this.sunriseFinished && this.playedSpecies && this.playedXeko && this.sunsetCompleted;
+    // if current player has no actionable turns left - this does not include automatic actions like sunrise/sunset
+    private get AreNoActionsLeft(): boolean {
+        return this.PlayedSpecies && this.PlayedXeko && !this.IsTurfWarActive;
     }
 
-    // public drawCard(player: Player): [boolean, Game] {
+    // if the current player's turn is over - this includes the sunset phase
+    private get IsTurnOver(): boolean {
+        return this.drewCard && this.sunriseFinished && this.playedSpecies && this.playedXeko && !this.IsTurfWarActive && this.sunsetCompleted;
+    }
 
-    // }
+    public drawCard(player: Player): [boolean, Game] {
+        // todo: where to put this? Need to draw a card but don't know who should initate this action
+        let [success, drawnCards] = player.draw(1);
+        return [success, this];
+    }
 
     /**
      * Place a species card on the board. 
@@ -123,12 +166,15 @@ class Game implements GameState {
             this.turfWarInitiated = this.isTurfWarInitiated(placedCard); 
             return [true, this];
         }
+        this.postTurnCheck();
         return [false, this];
     }
 
     // goodfaith reliance on view layer to call this at appropriate times    
     public initiateTurfWar(invadingCard: PlacedCard, invader: Player, defendingCard: PlacedCard, defender: Player): Game {
         this.turfWar = new TurfWar(invadingCard, defendingCard, invader, defender);
+
+        this.postTurnCheck();
         return this;
     }
 
@@ -157,17 +203,55 @@ class Game implements GameState {
 
     // call this after each card placement turn - this will set the next player in the Game state
     private postTurnCheck() {
-
+        if (this.IsTurnOver) {
+            this.switchPlayer();
+        }
     }
 
-    // todo: when does this get called? who calls it?
     private switchPlayer() {
-
+        this.CurrentPlayerIndex = (this.CurrentPlayerIndex + 1 === this.Players.length) ? 0 : this.CurrentPlayerIndex + 1;
+        this.DrewCard = false;
+        this.SunriseFinished = false;
+        this.PlayedSpecies = false;
+        this.PlayedXeko = false;
+        this.TurfWarInitated = false;
+        this.SunsetCompleted = false;
     }
 
     private placeCard(card: PlaceableCard, x: number, y: number, owner: Player): PlacedCard {
         return this.board.placeCard(card, x, y, owner);
     }
+
+    private calculateWinner(): Player {
+        let winner = this.Players.reduce((accu: {player: Player, total: number}, player: Player) => {
+            let conservationBonus: number = Math.ceil(player.DeckSize / 2);
+            let boardTotal = this.Board.getCardsByPlayer(player).reduce((accu: number, card: PlacedCard) => accu + (card.Card as SpeciesCard).Points, 0);
+            let total = boardTotal + conservationBonus;
+            // todo: apply game over effects
+            return (!accu.player || total >= accu.total) ? {player, total} : accu;
+        }, {player: null, total: 0});
+        return winner.player;
+    }
+
+    // todo: hook a check for this wherever card draws are involved
+    private endGame(): Game {
+        this.calculateWinner();
+        // todo: assign winner to returned object
+        return this;
+    }
+
+    // // this mocks a get command, matches key to function and allows post-command logic to run
+    // public mockGet(key: string, payload: any) {
+    //     // pre-logic stuff
+        
+    //     switch(key) {
+    //         case 'species':
+    //             this.placeSpeciesCard();
+    //             break;
+    //     }
+
+    //     this.postTurnCheck();
+    // }
 
     /**
      * Sort a player array to determine play order.
